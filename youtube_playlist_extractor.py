@@ -37,32 +37,28 @@ ydl_opts = {
 
 }
 
-input_file = open("playlists.txt")
+with open("playlists.txt") as input_file:
+    with open('video.json', 'a+') as output:
+        for playlist in input_file:
+            # print(playlist)
+            print(f'playlist ({playlist}) is started!')
 
-with open('video.json', 'a+') as output:
-    for playlist in input_file:
-        # print(playlist)
-        print(f'playlist ({playlist}) is started!')
+            with youtube_dl.YoutubeDL(ydl_opts) as ydl:
 
-        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+                playlist_dict = ydl.extract_info(playlist, download=False)
+                # print(playlist_dict['entries'])
+                for video in playlist_dict['entries']:
 
-            playlist_dict = ydl.extract_info(playlist, download=False)
-            # print(playlist_dict['entries'])
-            for video in playlist_dict['entries']:
+                    # print(video)
 
-                # print(video)
-
-                if not video:
-                    # print('ERROR: Unable to get info. Continuing...')
-                    continue
-                for k in keywords:
-                    if k in str(video.get('title').lower()):
-                        print(video.get('id'),video.get('title'))
+                    if not video:
+                        # print('ERROR: Unable to get info. Continuing...')
                         continue
-                output.write('{\n')
-                output.write(f'\tvideoID: \"{video.get("id")}\", videoTitle: \"{video.get("title")}\"\n')
-                output.write('},\n')
-            print(f'playlist ({playlist}) is finished!')
-
-
-input_file.close()
+                    for k in keywords:
+                        if k in str(video.get('title').lower()):
+                            print(video.get('id'),video.get('title'))
+                            continue
+                    output.write('{\n')
+                    output.write(f'\tvideoID: \"{video.get("id")}\", videoTitle: \"{video.get("title")}\"\n')
+                    output.write('},\n')
+                print(f'playlist ({playlist}) is finished!')
